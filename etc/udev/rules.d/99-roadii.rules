@@ -1,2 +1,12 @@
-# Detect Wiimote with Guitar attached
-ACTION=="add", KERNEL=="input[0-9]*", ATTRS{name}=="Nintendo Wii Remote Guitar", TAG+="systemd", PROGRAM="/usr/bin/systemd-escape -p --template=roadii@.service \"%k\"", ENV{SYSTEMD_WANTS}+="%c"
+# Stable symlinks for the Wiimote's event nodes. Event numbers can change
+# across reconnects; these links always point at the current nodes so the
+# long-lived evsieve instance (persist=reopen) can reopen them and keep the
+# virtual controller alive, letting games survive guitar reconnects.
+ACTION=="add", KERNEL=="event[0-9]*", ATTRS{name}=="Nintendo Wii Remote", SYMLINK+="input/wiitar-wiimote"
+ACTION=="add", KERNEL=="event[0-9]*", ATTRS{name}=="Nintendo Wii Remote Guitar", SYMLINK+="input/wiitar-guitar"
+ACTION=="add", KERNEL=="event[0-9]*", ATTRS{name}=="Nintendo Wii Remote Accelerometer", SYMLINK+="input/wiitar-accel"
+
+# Start the (singleton) mapping service once a guitar appears. On later
+# reconnects the service is already active, so this is a no-op and the
+# existing virtual device carries on.
+ACTION=="add", KERNEL=="input[0-9]*", ATTRS{name}=="Nintendo Wii Remote Guitar", TAG+="systemd", ENV{SYSTEMD_WANTS}+="roadii.service"

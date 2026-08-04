@@ -1,0 +1,6 @@
+[Unit]
+Description=Wii Guitar Hero guitar mapping service
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/roadii --grace-period=10
